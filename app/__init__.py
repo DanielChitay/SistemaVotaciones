@@ -16,10 +16,10 @@ def create_app():
     login_manager.init_app(app)
 
     from app.routes.auth import auth_bp
-
+    from app.routes.usuarios import usuarios_bp
 
     app.register_blueprint(auth_bp)
-
+    app.register_blueprint(usuarios_bp)
 
     with app.app_context():
         db.create_all()

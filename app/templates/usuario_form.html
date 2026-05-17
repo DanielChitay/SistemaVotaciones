@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}{{ accion }} Usuario{% endblock %}
+{% block page_title %}{{ accion }} Usuario{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre completo</label>
+                        <input type="text" name="nombre" class="form-control"
+                               value="{{ usuario.nombre if usuario is defined and usuario else '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Correo electrónico</label>
+                        <input type="email" name="correo" class="form-control"
+                               value="{{ usuario.correo if usuario is defined and usuario else '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Contraseña {% if accion == 'Editar' %}<small class="text-muted">(dejar vacío para no cambiar)</small>{% endif %}</label>
+                        <input type="password" name="password" class="form-control"
+                               {% if accion == 'Crear' %}required{% endif %}>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Rol</label>
+                        <select name="rol" class="form-select">
+                            <option value="admin" {% if usuario is defined and usuario and usuario.rol == 'admin' %}selected{% endif %}>Administrador</option>
+                            <option value="operador" {% if (usuario is defined and usuario and usuario.rol == 'operador') or accion == 'Crear' %}selected{% endif %}>Operador</option>
+                            <option value="auditor" {% if usuario is defined and usuario and usuario.rol == 'auditor' %}selected{% endif %}>Auditor</option>
+                        </select>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg"></i> Guardar
+                        </button>
+                        <a href="{{ url_for('usuarios.listar') }}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

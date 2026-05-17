@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Usuarios{% endblock %}
+{% block page_title %}Gestión de Usuarios{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <span style="color: #888; font-size: 14px;">{{ usuarios|length }} usuarios registrados</span>
+    <a href="{{ url_for('usuarios.crear') }}" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-lg"></i> Nuevo usuario
+    </a>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Rol</th>
+                    <th>Creado</th>
+                    <th style="width: 120px;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in usuarios %}
+                <tr>
+                    <td><strong>{{ u.nombre }}</strong></td>
+                    <td>{{ u.correo }}</td>
+                    <td><span class="badge badge-{{ u.rol }}">{{ u.rol }}</span></td>
+                    <td style="font-size: 13px; color: #888;">{{ u.created_at.strftime('%d/%m/%Y') if u.created_at else '-' }}</td>
+                    <td>
+                        <a href="{{ url_for('usuarios.editar', id=u.id) }}" class="btn btn-outline-secondary btn-sm" title="Editar">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        {% if u.id != current_user.id %}
+                        <form method="POST" action="{{ url_for('usuarios.eliminar', id=u.id) }}" style="display:inline"
+                              onsubmit="return confirm('¿Estás seguro de eliminar a {{ u.nombre }}?')">
+                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
