@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}{{ accion }} Votación{% endblock %}
+{% block page_title %}{{ accion }} Votación{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST" id="votacion-form">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre de la votación</label>
+                        <input type="text" name="nombre" class="form-control"
+                               value="{{ votacion.nombre if votacion is defined and votacion else '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea name="descripcion" class="form-control" rows="2">{{ votacion.descripcion if votacion is defined and votacion else '' }}</textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Fecha inicio</label>
+                            <input type="date" name="fecha_inicio" class="form-control"
+                                   value="{{ votacion.fecha_inicio.strftime('%Y-%m-%d') if votacion is defined and votacion else '' }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Fecha fin</label>
+                            <input type="date" name="fecha_fin" class="form-control"
+                                   value="{{ votacion.fecha_fin.strftime('%Y-%m-%d') if votacion is defined and votacion else '' }}" required>
+                        </div>
+                    </div>
+
+                    {% if accion == 'Editar' %}
+                    <div class="mb-3">
+                        <label class="form-label">Estado</label>
+                        <select name="estado" class="form-select">
+                            <option value="pendiente" {% if votacion.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                            <option value="activa" {% if votacion.estado == 'activa' %}selected{% endif %}>Activa</option>
+                            <option value="cerrada" {% if votacion.estado == 'cerrada' %}selected{% endif %}>Cerrada</option>
+                        </select>
+                    </div>
+                    {% endif %}
+
+                    {% if accion == 'Crear' %}
+                    <div class="mb-3">
+                        <label class="form-label">Candidatos <small class="text-muted">(mínimo 2)</small></label>
+                        <div id="candidatos-container">
+                            <div class="row mb-2 candidato-row">
+                                <div class="col-5">
+                                    <input type="text" name="candidato_nombre[]" class="form-control form-control-sm" placeholder="Nombre del candidato" required>
+                                </div>
+                                <div class="col-5">
+                                    <input type="text" name="candidato_partido[]" class="form-control form-control-sm" placeholder="Partido / Grupo">
+                                </div>
+                                <div class="col-2">
+                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeCandidato(this)" title="Eliminar">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row mb-2 candidato-row">
+                                <div class="col-5">
+                                    <input type="text" name="candidato_nombre[]" class="form-control form-control-sm" placeholder="Nombre del candidato" required>
+                                </div>
+                                <div class="col-5">
+                                    <input type="text" name="candidato_partido[]" class="form-control form-control-sm" placeholder="Partido / Grupo">
+                                </div>
+                                <div class="col-2">
+                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeCandidato(this)" title="Eliminar">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addCandidato()">
+                            <i class="bi bi-plus"></i> Agregar candidato
+                        </button>
+                    </div>
+                    {% endif %}
+
+                    <div class="d-flex gap-2 mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg"></i> Guardar votación
+                        </button>
+                        <a href="{{ url_for('votaciones.listar') }}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function addCandidato() {
+    const container = document.getElementById('candidatos-container');
+    const row = document.createElement('div');
+    row.className = 'row mb-2 candidato-row';
+    row.innerHTML = `
+        <div class="col-5">
+            <input type="text" name="candidato_nombre[]" class="form-control form-control-sm" placeholder="Nombre del candidato" required>
+        </div>
+        <div class="col-5">
+            <input type="text" name="candidato_partido[]" class="form-control form-control-sm" placeholder="Partido / Grupo">
+        </div>
+        <div class="col-2">
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeCandidato(this)" title="Eliminar">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+    `;
+    container.appendChild(row);
+}
+
+function removeCandidato(btn) {
+    const rows = document.querySelectorAll('.candidato-row');
+    if (rows.length <= 2) {
+        alert('Se necesitan al menos 2 candidatos.');
+        return;
+    }
+    btn.closest('.candidato-row').remove();
+}
+</script>
+{% endblock %}

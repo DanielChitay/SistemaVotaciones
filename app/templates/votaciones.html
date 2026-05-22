@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Votaciones{% endblock %}
+{% block page_title %}Gestión de Votaciones{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <span style="color: #888; font-size: 14px;">{{ votaciones|length }} votaciones</span>
+    <a href="{{ url_for('votaciones.crear') }}" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-lg"></i> Nueva votación
+    </a>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Fecha inicio</th>
+                    <th>Fecha fin</th>
+                    <th>Estado</th>
+                    <th>Candidatos</th>
+                    <th>Mesas</th>
+                    <th style="width: 150px;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in votaciones %}
+                <tr>
+                    <td><strong>{{ v.nombre }}</strong></td>
+                    <td style="font-size: 13px;">{{ v.fecha_inicio.strftime('%d/%m/%Y') }}</td>
+                    <td style="font-size: 13px;">{{ v.fecha_fin.strftime('%d/%m/%Y') }}</td>
+                    <td><span class="badge badge-{{ v.estado }}">{{ v.estado }}</span></td>
+                    <td>{{ v.candidatos|length }}</td>
+                    <td>{{ v.mesas|length }}</td>
+                    <td>
+                        <a href="{{ url_for('resultados.consultar', votacion_id=v.id) }}" class="btn btn-outline-primary btn-sm" title="Ver resultados">
+                            <i class="bi bi-bar-chart"></i>
+                        </a>
+                        <a href="{{ url_for('votaciones.editar', id=v.id) }}" class="btn btn-outline-secondary btn-sm" title="Editar">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <form method="POST" action="{{ url_for('votaciones.eliminar', id=v.id) }}" style="display:inline"
+                              onsubmit="return confirm('¿Eliminar votación {{ v.nombre }}?')">
+                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% if not votaciones %}
+                <tr><td colspan="7" class="text-center text-muted py-4">No hay votaciones creadas aún.</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
