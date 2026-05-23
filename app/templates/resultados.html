@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}Resultados{% endblock %}
+{% block page_title %}Consultar Resultados{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <form method="GET" class="d-flex gap-2">
+            <select name="votacion_id" class="form-select" onchange="this.form.submit()">
+                <option value="">Seleccionar votación...</option>
+                {% for v in votaciones %}
+                <option value="{{ v.id }}" {% if votacion_sel and votacion_sel.id == v.id %}selected{% endif %}>
+                    {{ v.nombre }}
+                </option>
+                {% endfor %}
+            </select>
+            {% if votacion_sel and mesas_votacion %}
+            <select name="mesa_id" class="form-select" style="max-width: 200px;" onchange="this.form.submit()">
+                <option value="">Todas las mesas</option>
+                {% for m in mesas_votacion %}
+                <option value="{{ m.id }}" {% if mesa_id == m.id %}selected{% endif %}>
+                    Mesa {{ m.numero_mesa }}
+                </option>
+                {% endfor %}
+            </select>
+            {% endif %}
+        </form>
+    </div>
+    {% if votacion_sel %}
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('resultados.mesas_para_registrar', votacion_id=votacion_sel.id) }}" class="btn btn-success btn-sm">
+            <i class="bi bi-pencil-square"></i> Registrar resultados
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+{% if datos %}
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-label">Total votos</div>
+            <div class="stat-value">{{ datos.total_votos }}</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-label">Mesas registradas</div>
+            <div class="stat-value">{{ datos.mesas_registradas }} / {{ datos.total_mesas }}</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-label">Participación de mesas</div>
+            <div class="stat-value">
+                {% if datos.total_mesas > 0 %}
+                {{ ((datos.mesas_registradas / datos.total_mesas) * 100)|round|int }}%
+                {% else %}
+                0%
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Votos por candidato</span>
+        <span class="badge bg-secondary">{{ votacion_sel.estado }}</span>
+    </div>
+    <div class="card-body">
+        {% for r in datos.resultados %}
+        <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <div>
+                    <strong style="font-size: 14px;">{{ r.nombre }}</strong>
+                    {% if r.partido %}
+                    <small class="text-muted"> — {{ r.partido }}</small>
+                    {% endif %}
+                </div>
+                <div style="font-size: 14px; font-weight: 600;">
+                    {{ r.total_votos }} votos
+                    {% if datos.total_votos > 0 %}
+                    <small class="text-muted">({{ ((r.total_votos / datos.total_votos) * 100)|round(1) }}%)</small>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="progress" style="height: 10px;">
+                <div class="progress-bar {% if loop.first %}bg-primary{% else %}bg-info{% endif %}"
+                     style="width: {{ (r.total_votos / datos.max_votos * 100)|round|int }}%"></div>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% if not datos.resultados %}
+        <p class="text-center text-muted py-3">No hay resultados registrados para esta votación.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% elif not votacion_sel %}
+<div class="text-center py-5">
+    <i class="bi bi-bar-chart-line" style="font-size: 48px; color: #ccc;"></i>
+    <p class="text-muted mt-3">Selecciona una votación para ver los resultados</p>
+</div>
+{% endif %}
+{% endblock %}

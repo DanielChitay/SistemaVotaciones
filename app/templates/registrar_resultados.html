@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Registrar Resultados{% endblock %}
+{% block page_title %}Registrar Resultados — Mesa {{ mesa.numero_mesa }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="alert alert-info" style="font-size: 13px;">
+            <i class="bi bi-info-circle"></i>
+            <strong>Votación:</strong> {{ votacion.nombre }} &middot;
+            <strong>Ubicación:</strong> {{ mesa.ubicacion }}
+            {% if mesa.responsable %}&middot; <strong>Responsable:</strong> {{ mesa.responsable.nombre }}{% endif %}
+        </div>
+
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST" onsubmit="return confirm('¿Confirmas el registro de resultados? Esta acción no se puede deshacer.')">
+                    {% for candidato in candidatos %}
+                    <div class="row mb-3 align-items-center">
+                        <div class="col-7">
+                            <label class="form-label mb-0" style="font-weight: 500;">{{ candidato.nombre }}</label>
+                            {% if candidato.partido %}
+                            <small class="d-block text-muted">{{ candidato.partido }}</small>
+                            {% endif %}
+                        </div>
+                        <div class="col-5">
+                            <input type="number" name="votos_{{ candidato.id }}" class="form-control"
+                                   min="0" value="0" required oninput="calcularTotal()">
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    <hr>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span style="color: #888;">Total de votos</span>
+                        <span id="total-votos" style="font-size: 18px; font-weight: 600;">0</span>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="bi bi-check-lg"></i> Guardar resultados
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <a href="{{ url_for('resultados.mesas_para_registrar', votacion_id=votacion.id) }}" class="btn btn-outline-secondary btn-sm mt-3">
+            <i class="bi bi-arrow-left"></i> Volver a mesas
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function calcularTotal() {
+    const inputs = document.querySelectorAll('input[type="number"]');
+    let total = 0;
+    inputs.forEach(input => { total += parseInt(input.value) || 0; });
+    document.getElementById('total-votos').textContent = total;
+}
+</script>
+{% endblock %}
