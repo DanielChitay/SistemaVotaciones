@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Mesas{% endblock %}
+{% block page_title %}Mesas Electorales{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <span style="color: #888; font-size: 14px;">{{ mesas|length }} mesas registradas</span>
+    <a href="{{ url_for('mesas.crear') }}" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-lg"></i> Nueva mesa
+    </a>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Mesa</th>
+                    <th>Ubicación</th>
+                    <th>Votación</th>
+                    <th>Responsable</th>
+                    <th>Estado</th>
+                    <th style="width: 150px;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in mesas %}
+                <tr>
+                    <td><strong>Mesa {{ m.numero_mesa }}</strong></td>
+                    <td>{{ m.ubicacion }}</td>
+                    <td style="font-size: 13px;">{{ m.votacion.nombre }}</td>
+                    <td>{{ m.responsable.nombre if m.responsable else 'Sin asignar' }}</td>
+                    <td>
+                        {% if m.registrada %}
+                        <span class="badge badge-registrada">Registrada</span>
+                        {% else %}
+                        <span class="badge badge-no-registrada">Pendiente</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if not m.registrada %}
+                        <a href="{{ url_for('resultados.registrar', mesa_id=m.id) }}" class="btn btn-outline-success btn-sm" title="Registrar votos">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        {% else %}
+                        <a href="{{ url_for('resultados.consultar', votacion_id=m.votacion_id) }}" class="btn btn-outline-primary btn-sm" title="Ver resultados">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        {% endif %}
+                        <a href="{{ url_for('mesas.editar', id=m.id) }}" class="btn btn-outline-secondary btn-sm" title="Editar">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <form method="POST" action="{{ url_for('mesas.eliminar', id=m.id) }}" style="display:inline"
+                              onsubmit="return confirm('¿Eliminar Mesa {{ m.numero_mesa }}?')">
+                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% if not mesas %}
+                <tr><td colspan="6" class="text-center text-muted py-4">No hay mesas creadas aún.</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

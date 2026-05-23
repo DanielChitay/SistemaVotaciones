@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Registrar — {{ votacion.nombre }}{% endblock %}
+{% block page_title %}Registrar resultados — {{ votacion.nombre }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Mesa</th>
+                    <th>Ubicación</th>
+                    <th>Responsable</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in mesas %}
+                <tr>
+                    <td><strong>Mesa {{ m.numero_mesa }}</strong></td>
+                    <td>{{ m.ubicacion }}</td>
+                    <td>{{ m.responsable.nombre if m.responsable else 'Sin asignar' }}</td>
+                    <td>
+                        {% if m.registrada %}
+                        <span class="badge badge-registrada">Registrada</span>
+                        {% else %}
+                        <span class="badge badge-no-registrada">Pendiente</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if not m.registrada %}
+                        <a href="{{ url_for('resultados.registrar', mesa_id=m.id) }}" class="btn btn-success btn-sm">
+                            <i class="bi bi-pencil-square"></i> Registrar
+                        </a>
+                        {% else %}
+                        <span class="text-muted" style="font-size: 13px;">Ya registrada</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                {% if not mesas %}
+                <tr><td colspan="5" class="text-center text-muted py-4">No hay mesas para esta votación.</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<a href="{{ url_for('resultados.consultar', votacion_id=votacion.id) }}" class="btn btn-outline-secondary btn-sm mt-3">
+    <i class="bi bi-arrow-left"></i> Volver a resultados
+</a>
+{% endblock %}
